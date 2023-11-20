@@ -12,6 +12,14 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+
 const firebaseConfig = {
   apiKey: "AIzaSyABAMBb15PX1rkaA-nMuUDJNSPYLlvRtck",
   authDomain: "fir-netninja-fdf18.firebaseapp.com",
@@ -26,6 +34,7 @@ initializeApp(firebaseConfig);
 
 // initialize services
 const db = getFirestore();
+const auth = getAuth();
 
 // collection ref
 const colRef = collection(db, "books");
@@ -97,3 +106,59 @@ updateBookForm.addEventListener("submit", (e) => {
     updateBookForm.reset();
   });
 });
+
+//SignUp form
+
+const signUpForm = document.querySelector(".signUpForm");
+
+signUpForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  let email = signUpForm.email.value;
+  let password = signUpForm.password.value;
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((cred) => {
+    //   console.log(cred.user);
+      signUpForm.reset();
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+});
+
+// Login form
+const loginUpForm = document.querySelector(".loginUpForm");
+loginUpForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const email = loginUpForm.email.value;
+  const password = loginUpForm.password.value;
+  signInWithEmailAndPassword(auth, email, password)
+    .then((cred) => {
+    //   console.log("user logged In", cred.user);
+      loginUpForm.reset();
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+});
+
+//logout
+const logoutForm = document.querySelector(".logout");
+logoutForm.addEventListener("click", (e) => {
+  e.preventDefault();
+  signOut(auth)
+    .then(() => {
+    //   console.log("user signed OUT");
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+});
+
+// subscribe to auth changes
+onAuthStateChanged(auth, (user) => {
+    console.log("user status changed:", user)
+})
+
+//unsubscribe from subscription
